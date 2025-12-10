@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("./partials/head") %>
+    <title>Add Blog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .blog-form-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .form-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+            text-align: center;
+        }
+        .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <%- include("./partials/nav") %>
+    
+    <div class="blog-form-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h1 class="mb-0">
+                                <i class="bi bi-pencil-square me-3"></i>
+                                Create New Blog Post
+                            </h1>
+                            <p class="mb-0 mt-2 opacity-90">Share your thoughts with the world</p>
+                        </div>
+                        
+                        <div class="p-4">
+                            <form action="/blog" method="POST" enctype="multipart/form-data">
+                                <!-- Title Field -->
+                                <div class="mb-4">
+                                    <label for="title" class="form-label">
+                                        <i class="bi bi-type text-primary me-2"></i>
+                                        Blog Title *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control form-control-lg" 
+                                        id="title" 
+                                        name="title" 
+                                        placeholder="Enter an engaging title for your blog post"
+                                        required
+                                    >
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Choose a catchy and descriptive title
+                                    </div>
+                                </div>
+
+                                <!-- Cover Image Field -->
+                                <div class="mb-4">
+                                    <label for="coverImageURL" class="form-label">
+                                        <i class="bi bi-image text-primary me-2"></i>
+                                        Cover Image URL
+                                    </label>
+                                    <input 
+                                        type="file" 
+                                        class="form-control" 
+                                        id="coverImageURL" 
+                                        name="coverImageURL" 
+                                        placeholder="https://example.com/image.jpg"
+                                        onchange="previewImage(this.value)"
+                                    >
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Optional: Add a cover image URL to make your post more attractive
+                                    </div>
+                                    <!-- Image Preview -->
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <p class="text-muted small mb-2">Image Preview:</p>
+                                        <img id="previewImg" class="preview-image" alt="Cover image preview">
+                                    </div>
+                                </div>
+
+                                <!-- Body Field -->
+                                <div class="mb-4">
+                                    <label for="body" class="form-label">
+                                        <i class="bi bi-textarea-t text-primary me-2"></i>
+                                        Blog Content *
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="body" 
+                                        name="body" 
+                                        rows="12" 
+                                        placeholder="Write your blog content here... Share your ideas, experiences, and insights!"
+                                        required
+                                    ></textarea>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Write engaging content that provides value to your readers
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100" onclick="clearForm()">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>
+                                            Clear Form
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <button type="submit" class="btn btn-primary-custom w-100">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            Publish Blog Post
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Info -->
+                                <div class="alert alert-info mt-4" role="alert">
+                                    <i class="bi bi-lightbulb me-2"></i>
+                                    <strong>Writing Tips:</strong> 
+                                    Make your content engaging with clear headings, short paragraphs, and relevant examples. 
+                                    Don't forget to proofread before publishing!
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Image preview function
+        function previewImage(url) {
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            
+            if (url && isValidImageUrl(url)) {
+                img.src = url;
+                preview.style.display = 'block';
+                
+                // Handle image load errors
+                img.onerror = function() {
+                    preview.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Basic URL validation for images
+        function isValidImageUrl(url) {
+            const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i;
+            try {
+                new URL(url);
+                return imageExtensions.test(url) || url.includes('unsplash') || url.includes('imgur');
+            } catch {
+                return false;
+            }
+        }
+
+        // Clear form function
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all fields?')) {
+                document.querySelector('form').reset();
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        }
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('body');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Character count for title (optional enhancement)
+        const titleInput = document.getElementById('title');
+        titleInput.addEventListener('input', function() {
+            const maxLength = 100;
+            const currentLength = this.value.length;
+            
+            // You can add character count display here if needed
+        });
+    </script>
+
+    <%- include("./partials/script") %>
+</body>
+</html>

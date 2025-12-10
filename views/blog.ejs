@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("./partials/head") %>    
+    <title><%= blog ? blog.title : 'Blog' %></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        .blog-hero {
+            position: relative;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+        
+        .blog-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 1;
+        }
+        
+        .blog-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.6) 100%
+            );
+            z-index: 2;
+        }
+        
+        .blog-hero-default {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1;
+        }
+        
+        .blog-hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+        
+        .blog-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+        }
+        
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .author-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%; /* This makes it circular */
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        overflow: hidden; /* This ensures image stays within circular bounds */
+        position: relative;
+    }
+
+    .author-profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* This ensures proper aspect ratio */
+        border-radius: 50%; /* Make the image itself circular */
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .author-profile-img:hover {
+        transform: scale(1.05);
+    }
+
+    .author-initial {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-size: 2rem;
+        font-weight: 600;
+        color: white;
+        border-radius: 50%; /* Make initials background circular too */
+    }
+
+    /* Enhanced hover effects */
+    .author-card:hover .author-profile-img {
+        transform: scale(1.05);
+    }
+
+    .author-card:hover .author-avatar {
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    }
+
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 4;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .blog-content-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .blog-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        /* Updated blog body styles for proper formatting */
+        .blog-body {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #374151;
+        }
+        
+        .blog-content-formatted {
+            white-space: pre-wrap; /* Preserves line breaks and spaces */
+            word-wrap: break-word;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #374151;
+            text-align: justify;
+        }
+        
+        /* First letter styling for formatted content */
+        .blog-content-formatted::first-letter {
+            font-size: 4rem;
+            font-weight: 700;
+            float: left;
+            line-height: 1;
+            margin: 0.1rem 0.5rem 0 0;
+            color: #4f46e5;
+        }
+        
+        /* Handle different text elements that might be in copied content */
+        .blog-content-formatted h1,
+        .blog-content-formatted h2,
+        .blog-content-formatted h3,
+        .blog-content-formatted h4,
+        .blog-content-formatted h5,
+        .blog-content-formatted h6 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .blog-content-formatted h1 { font-size: 2rem; }
+        .blog-content-formatted h2 { font-size: 1.75rem; }
+        .blog-content-formatted h3 { font-size: 1.5rem; }
+        .blog-content-formatted h4 { font-size: 1.25rem; }
+        
+        .blog-content-formatted ul,
+        .blog-content-formatted ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        .blog-content-formatted li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .blog-content-formatted blockquote {
+            border-left: 4px solid #4f46e5;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #6b7280;
+            background: #f9fafb;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .blog-content-formatted code {
+            background: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #e11d48;
+        }
+        
+        .blog-content-formatted pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .blog-content-formatted a {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        
+        .blog-content-formatted a:hover {
+            color: #7c3aed;
+        }
+        
+        .social-share {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1.25rem;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .share-twitter { background: #1da1f2; }
+        .share-facebook { background: #4267b2; }
+        .share-linkedin { background: #0077b5; }
+        .share-copy { background: #6b7280; }
+        
+        .author-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .author-info h5 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .author-info p {
+            color: #6b7280;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+        
+        .blog-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+        
+        .action-btn-outline {
+            background: transparent;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+        
+        .action-btn-outline:hover {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-title {
+                font-size: 2.5rem;
+            }
+            
+            .blog-hero {
+                height: 50vh;
+            }
+            
+            .blog-content {
+                padding: 2rem;
+            }
+            
+            .back-btn {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 2rem;  
+                display: inline-block;
+            }
+            
+            .blog-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .author-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .blog-content-formatted::first-letter {
+                font-size: 3rem;
+            }
+        }
+        
+        /* Smooth scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Debug info styles - remove after testing */
+        .debug-info {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 9999;
+            max-width: 300px;
+            word-break: break-all;
+            font-size: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <%- include("./partials/nav") %>
+    
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress" id="reading-progress"></div>
+    
+    <% if(blog) { %>
+    <!-- Debug Info - Remove after testing -->
+    <% if(blog.coverImageURL) { %>
+        <div class="debug-info" id="debug-info">
+            <strong>🖼️ Cover Image Debug:</strong><br>
+            <strong>URL:</strong> <%= blog.coverImageURL %><br>
+            <strong>Status:</strong> <span id="image-status">Loading...</span>
+        </div>
+    <% } %>
+
+    <!-- Blog Hero Section -->
+    <div class="blog-hero">
+        <% if(blog.coverImageURL) { %>
+            <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" class="blog-hero-bg" id="hero-image">
+            <div class="blog-hero-overlay"></div>
+        <% } else { %>
+            <div class="blog-hero-default"></div>
+        <% } %>
+        
+        <a href="/" class="back-btn">
+            <i class="bi bi-arrow-left me-2"></i>
+            Back to Home
+        </a>
+        
+        <div class="blog-hero-content">
+            <h1 class="blog-title"><%= blog.title %></h1>
+            
+            <div class="blog-meta">
+                <div class="meta-item">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    <%= new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }) %>
+                </div>
+                
+                <div class="meta-item">
+                    <i class="bi bi-clock me-2"></i>
+                    <%= Math.ceil(blog.body.split(' ').length / 200) %> min read
+                </div>
+                
+                <div class="meta-item">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <%= blog.createdBy ? (blog.createdBy.fullName || blog.createdBy.email) : 'Anonymous' %>
+                </div>
+                
+                <!-- Add visit count display -->
+                <div class="meta-item">
+                    <i class="bi bi-eye me-2"></i>
+                    <%= blog.visitHistory ? blog.visitHistory.length : 0 %> views
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="blog-content-wrapper">
+        <!-- Blog Content with Proper Formatting -->
+        <article class="blog-content fade-in">
+            <div class="blog-body">
+                <!-- This preserves all original formatting from copied content -->
+                <div class="blog-content-formatted"><%= blog.body %></div>
+            </div>
+        </article>
+        
+        <!-- Social Share -->
+        <div class="social-share fade-in">
+            <h5 class="mb-3">
+                <i class="bi bi-share me-2"></i>
+                Share this article
+            </h5>
+            <div>
+                <a href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(blog.title) %>&url=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>" 
+                   class="share-btn share-twitter" target="_blank">
+                    <i class="bi bi-twitter"></i>
+                </a>
+                
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>" 
+                   class="share-btn share-facebook" target="_blank">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>" 
+                   class="share-btn share-linkedin" target="_blank">
+                    <i class="bi bi-linkedin"></i>
+                </a>
+                
+                <button class="share-btn share-copy" onclick="copyToClipboard()">
+                    <i class="bi bi-link-45deg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Author Card with .jpeg Extension Handling -->
+        <% if(blog.createdBy) { %>
+        <div class="author-card fade-in">
+            <div class="author-avatar">
+                <% 
+                    // Handle .jpeg extension for profile images
+                    let profileImageSrc = blog.createdBy.profileImageURL;
+                    let showImage = false;
+                    
+                    if (profileImageSrc) {
+                        // If it's the default profile without extension, add .jpeg
+                        if (profileImageSrc === '/images/profile_default') {
+                            profileImageSrc = '/images/profile_default.jpeg';
+                        }
+                        showImage = true;
+                    }
+                %>
+                
+                <% if(showImage) { %>
+                    <img src="<%= profileImageSrc %>" 
+                        alt="<%= blog.createdBy.fullName || blog.createdBy.email %>" 
+                        class="author-profile-img"
+                        onload="console.log('✅ Profile image loaded:', this.src); this.nextElementSibling.style.display='none';"
+                        onerror="console.log('❌ Profile image failed:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';", width="50px">
+                    <!-- Fallback initials -->
+                    <div class="author-initial" style="display: flex;">
+                        <%= (blog.createdBy.fullName || blog.createdBy.email || 'A').charAt(0).toUpperCase() %>
+                    </div>
+                <% } else { %>
+                    <!-- Default initials -->
+                    <div class="author-initial">
+                        <%= (blog.createdBy.fullName || blog.createdBy.email || 'A').charAt(0).toUpperCase() %>
+                    </div>
+                <% } %>
+            </div>
+            <div class="author-info">
+                <h5>Written by <%= blog.createdBy.fullName || blog.createdBy.email || 'Anonymous' %></h5>
+                <p>Published on <%= new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }) %></p>
+                <% if(blog.visitHistory && blog.visitHistory.length > 0) { %>
+                    <p class="text-muted small mt-1">
+                        <i class="bi bi-eye me-1"></i>
+                        <%= blog.visitHistory.length %> views
+                    </p>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+        
+        <!-- Action Buttons -->
+        <div class="blog-actions fade-in">
+            <a href="/" class="action-btn action-btn-outline">
+                <i class="bi bi-arrow-left"></i>
+                Back to Home
+            </a>
+            
+            <% if(user && blog.createdBy && user._id.toString() === blog.createdBy._id.toString()) { %>
+            <a href="/blog/edit/<%= blog._id %>" class="action-btn">
+                <i class="bi bi-pencil-square"></i>
+                Edit Post
+            </a>
+            <% } %>
+            
+            <a href="/blog/add" class="action-btn">
+                <i class="bi bi-plus-circle"></i>
+                Write New Post
+            </a>
+        </div>
+    </div>
+    
+    <% } else { %>
+    <!-- Blog Not Found -->
+    <div class="container mt-5 text-center">
+        <div class="blog-content">
+            <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+            <h2 class="mt-3">Blog Post Not Found</h2>
+            <p class="text-muted">The blog post you're looking for doesn't exist or has been removed.</p>
+            <a href="/" class="action-btn mt-3">
+                <i class="bi bi-house-door"></i>
+                Go Home
+            </a>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Debug cover image loading
+        document.addEventListener('DOMContentLoaded', function() {
+            const coverImage = document.getElementById('hero-image');
+            const debugInfo = document.getElementById('debug-info');
+            const imageStatus = document.getElementById('image-status');
+            
+            if (coverImage && debugInfo) {
+                console.log('🖼️ Cover image URL:', coverImage.src);
+                
+                coverImage.onload = function() {
+                    console.log('✅ Cover image loaded successfully');
+                    imageStatus.innerHTML = '✅ Loaded Successfully';
+                    imageStatus.style.color = 'green';
+                    
+                    // Hide debug info after 3 seconds if image loads
+                    setTimeout(() => {
+                        debugInfo.style.display = 'none';
+                    }, 3000);
+                };
+                
+                coverImage.onerror = function() {
+                    console.log('❌ Cover image failed to load');
+                    imageStatus.innerHTML = '❌ Failed to Load';
+                    imageStatus.style.color = 'red';
+                    
+                    // Fallback to default background
+                    const hero = document.querySelector('.blog-hero');
+                    const heroContent = hero.querySelector('.blog-hero-content').outerHTML;
+                    const backBtn = hero.querySelector('.back-btn').outerHTML;
+                    
+                    hero.innerHTML = `
+                        <div class="blog-hero-default"></div>
+                        ${backBtn}
+                        ${heroContent}
+                    `;
+                };
+                
+                // Check if image is already loaded (cached)
+                if (coverImage.complete) {
+                    if (coverImage.naturalWidth > 0) {
+                        coverImage.onload();
+                    } else {
+                        coverImage.onerror();
+                    }
+                }
+            } else if (debugInfo) {
+                debugInfo.innerHTML = '<strong>ℹ️ No cover image URL provided</strong>';
+                setTimeout(() => {
+                    debugInfo.style.display = 'none';
+                }, 2000);
+            }
+        });
+
+        // Reading progress bar
+        function updateReadingProgress() {
+            const article = document.querySelector('.blog-content');
+            if (!article) return;
+            
+            const articleTop = article.offsetTop;
+            const articleHeight = article.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const scrollTop = window.pageYOffset;
+            
+            const progress = (scrollTop - articleTop + windowHeight) / (articleHeight + windowHeight) * 100;
+            const clampedProgress = Math.max(0, Math.min(100, progress));
+            
+            document.getElementById('reading-progress').style.width = clampedProgress + '%';
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const btn = document.querySelector('.share-copy');
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check"></i>';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.style.background = '#6b7280';
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const btn = document.querySelector('.share-copy');
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check"></i>';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.style.background = '#6b7280';
+                }, 2000);
+            });
+        }
+
+        // Fade in animation on scroll
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateReadingProgress();
+            handleScrollAnimations();
+        });
+
+        // Initial calls
+        document.addEventListener('DOMContentLoaded', () => {
+            handleScrollAnimations();
+            updateReadingProgress();
+        });
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <%- include("./partials/script") %>
+</body>
+</html>
